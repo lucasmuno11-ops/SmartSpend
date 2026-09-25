@@ -34,6 +34,7 @@ smartspend/
 
 ## Team
 - **Project Lead:** Lucas
+- Members: Andrew Glushanok, Evan Schwartz, Elizabeth Li, Sai Anand Rajan
 - Roles: ML/Model Development, Data Engineering, Evaluation, Dashboard, Product/Data Analyst
 
 ## Roadmap (10 weeks)
