@@ -25,8 +25,14 @@ def clean_transactions(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+
+
 if __name__ == "__main__":
     # Quick manual test — update the path once we have real/sample data in /data
+    df = pd.read_csv('test.csv')
+    df.sample(n=2000, random_state = 42).to_csv("data/sample_transactions.csv")
     df = load_transactions("data/sample_transactions.csv")
-    df = clean_transactions(df)
+    #df = clean_transactions(df)
     print(df.head())
+    print(df["category"].unique())
+    print(df.columns.tolist())
