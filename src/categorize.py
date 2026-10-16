@@ -8,46 +8,75 @@ from pathlib import Path
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import classification_report
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
 
 
 def load_training_data(csv_path):
-    """Load merchant descriptions and category labels from a CSV file."""
+    """Load merchant descriptions, category labels, and brands from CSV."""
     df = pd.read_csv(csv_path)
-    required_columns = {"description", "category"}
+    required_columns = {"description", "category", "brand"}
     missing = required_columns - set(df.columns)
     if missing:
         raise ValueError(f"CSV is missing required columns: {sorted(missing)}")
 
-    return df["description"].astype(str).tolist(), df["category"].astype(str).tolist()
+    df = df[["description", "category", "brand"]].copy()
+    df["description"] = df["description"].astype(str)
+    df["category"] = df["category"].astype(str)
+    df["brand"] = df["brand"].astype(str)
+    return df
 
 
-def train_categorizer(descriptions, categories):
+def split_by_brand(df, test_size=0.2, random_state=42):
+    """Split merchants by brand so the test set contains unseen merchants."""
+    brands = df["brand"].dropna().unique()
+    train_brands, test_brands = train_test_split(
+        brands, test_size=test_size, random_state=random_state
+    )
+
+    train_df = df[df["brand"].isin(train_brands)].copy()
+    test_df = df[df["brand"].isin(test_brands)].copy()
+
+    if train_df.empty or test_df.empty:
+        raise ValueError("Brand-based split produced an empty train or test set.")
+
+    return train_df, test_df
+
+
+def train_categorizer(train_descriptions, train_categories, test_descriptions, test_categories):
     """
     Train a TF-IDF + Naive Bayes categorizer.
 
-    descriptions : list[str]  e.g. ["STARBUCKS #4521", "SHELL OIL 12345"]
-    categories   : list[str]  e.g. ["Dining", "Transportation"]
+    train_descriptions : list[str]
+    train_categories   : list[str]
+    test_descriptions  : list[str]
+    test_categories    : list[str]
     """
-    X_train, X_test, y_train, y_test = train_test_split(
-        descriptions, categories, test_size=0.2, random_state=42
-    )
-
     vectorizer = TfidfVectorizer()
-    X_train_vec = vectorizer.fit_transform(X_train)
-    X_test_vec = vectorizer.transform(X_test)
+    X_train_vec = vectorizer.fit_transform(train_descriptions)
+    X_test_vec = vectorizer.transform(test_descriptions)
 
     model = MultinomialNB()
-    model.fit(X_train_vec, y_train)
+    model.fit(X_train_vec, train_categories)
 
-    return model, vectorizer, X_test_vec, y_test
+    return model, vectorizer, X_test_vec, test_categories
 
 
 if __name__ == "__main__":
     csv_path = Path(__file__).resolve().parent.parent / "data" / "real_merchants.csv"
-    descriptions, categories = load_training_data(csv_path)
+    df = load_training_data(csv_path)
+    train_df, test_df = split_by_brand(df)
 
-    model, vectorizer, X_test, y_test = train_categorizer(descriptions, categories)
-    print(f"Trained on {len(descriptions)} examples.")
-    print("Model trained. Vocabulary size:", len(vectorizer.vocabulary_))
+    model, vectorizer, X_test_vec, y_test = train_categorizer(
+        train_df["description"].tolist(),
+        train_df["category"].tolist(),
+        test_df["description"].tolist(),
+        test_df["category"].tolist(),
+    )
+
+    predictions = model.predict(X_test_vec)
+    print(f"Train brands: {train_df['brand'].nunique()} | Test brands: {test_df['brand'].nunique()}")
+    print(f"Train rows: {len(train_df)} | Test rows: {len(test_df)}")
+    print("Vocabulary size:", len(vectorizer.vocabulary_))
+    print(classification_report(y_test, predictions, zero_division=0))
