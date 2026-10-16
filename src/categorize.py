@@ -30,7 +30,7 @@ def load_training_data(csv_path):
 
 def split_by_brand(df, test_size=0.2, random_state=42):
     """Split merchants by brand so the test set contains unseen merchants."""
-    brands = df["brand"].dropna().unique()
+    brands = list(df["brand"].dropna().unique())  # new
     train_brands, test_brands = train_test_split(
         brands, test_size=test_size, random_state=random_state
     )
@@ -57,7 +57,7 @@ def train_categorizer(train_descriptions, train_categories, test_descriptions, t
     X_train_vec = vectorizer.fit_transform(train_descriptions)
     X_test_vec = vectorizer.transform(test_descriptions)
 
-    model = MultinomialNB()
+    model = MultinomialNB(fit_prior=False)  # new
     model.fit(X_train_vec, train_categories)
 
     return model, vectorizer, X_test_vec, test_categories
