@@ -29,7 +29,8 @@ BRANDS = {
     "Groceries": [
         "Publix", "Walmart", "Winn-Dixie", "Aldi", "Trader Joe's", "Whole Foods",
         "Sam's Club", "Costco", "Sprouts", "Lidl", "Save A Lot", "Fresh Market",
-        "Amazon Fresh", "Instacart", "Gopuff", "Harris Teeter", "BJ's Wholesale",
+        "Amazon Fresh", "Instacart", "Gopuff", "Harris Teeter", "BJ's Wholesale", 
+        "Shipt", "HelloFresh",
     ],
     "Dining": [
         "Taco Bell", "McDonald's", "Chipotle", "Chick-fil-A", "Starbucks", "Wawa",
@@ -43,7 +44,9 @@ BRANDS = {
         "Tropical Smoothie Cafe", "Krispy Kreme", "Insomnia Cookies", "Dairy Queen",
         "Cold Stone Creamery", "Baskin-Robbins", "Blaze Pizza", "Cava", "Sweetgreen",
         "Marco's Pizza", "Pollo Tropical", "DoorDash", "Uber Eats", "Grubhub",
-        "Gator Dining",
+        "Gator Dining", "Mellow Mushroom", "Wing Zone", "Burrito Brothers", "First Watch", "Whataburger",
+        "Bojangles", "Crumbl Cookies", "Dutch Bros",
+
     ],
     "Transportation": [
         "Uber", "Lyft", "Shell", "Exxon", "BP", "Chevron", "RaceTrac", "Circle K",
@@ -54,7 +57,7 @@ BRANDS = {
         "Zipcar", "Bird", "Lime", "Jiffy Lube", "AutoZone", "Advance Auto Parts",
         "O'Reilly Auto Parts", "Valvoline", "Firestone", "Pep Boys", "UF Parking",
         "Gainesville RTS", "Airbnb", "Expedia", "Booking.com", "Marriott", "Hilton",
-        "Hampton Inn", "Holiday Inn",
+        "Hampton Inn", "Holiday Inn", "ParkMobile", "Buc-ee's", "7-Eleven", "Allegiant Air",
     ],
     "Shopping": [
         "Amazon", "Target", "Nike", "Best Buy", "Apple Store", "Shein", "Temu", "eBay",
@@ -65,7 +68,7 @@ BRANDS = {
         "Wayfair", "Macy's", "Kohl's", "Nordstrom Rack", "Forever 21", "American Eagle",
         "Hollister", "Gap", "Victoria's Secret", "Micro Center", "Staples",
         "Office Depot", "Goodwill", "Poshmark", "Depop", "Mercari", "Vans", "Converse",
-        "Champs Sports", "Journeys", "Fanatics",
+        "Champs Sports", "Journeys", "Fanatics", "Aerie", "Pacsun", "Zumiez", "Uniqlo", "Abercrombie & Fitch",
     ],
     "Entertainment": [
         "Netflix", "Spotify", "Hulu", "Disney Plus", "HBO Max", "Peacock",
@@ -75,12 +78,13 @@ BRANDS = {
         "StubHub", "SeatGeek", "Live Nation", "Universal Studios", "Walt Disney World",
         "Dave & Buster's", "Topgolf", "Bowlero", "Crunchyroll", "Fandango",
         "Epic Games", "Roblox", "Discord Nitro", "SiriusXM", "Pandora", "UF Athletics",
-        "Busch Gardens", "SeaWorld",
+        "Busch Gardens", "SeaWorld", "ESPN Plus", "Tinder", "Bumble", "Hinge",
     ],
     "Housing": [
         "Gainesville Regional Utilities", "Duke Energy", "FPL", "Spectrum", "Xfinity",
         "Comcast", "AT&T Internet", "Lemonade", "Water Bill", "Electric Bill",
-        "RentCafe", "AppFolio", "Zillow Rentals", "Apartments.com",
+        "RentCafe", "AppFolio", "Zillow Rentals", "Apartments.com" "Clay Electric", "Cabana Beach", "The Standard",
+
     ],
     "Healthcare": [
         "CVS Pharmacy", "Walgreens", "Rite Aid", "Publix Pharmacy", "Walmart Pharmacy",
@@ -88,25 +92,25 @@ BRANDS = {
         "HCA Florida North Florida Hospital", "AdventHealth", "Quest Diagnostics",
         "Labcorp", "MinuteClinic", "Zocdoc", "Hims", "GoodRx", "LensCrafters",
         "Warby Parker", "Aetna", "Blue Cross Blue Shield", "Cigna", "UnitedHealthcare",
-        "Teladoc",
+        "Teladoc", "Florida Blue", "BetterHelp",
     ],
     "Personal Care": [
         "Great Clips", "Sport Clips", "Supercuts", "Ulta Beauty", "Sephora",
         "Bath & Body Works", "Planet Fitness", "Crunch Fitness", "LA Fitness",
         "Orangetheory Fitness", "Gold's Gym", "Anytime Fitness", "Massage Envy",
         "European Wax Center", "Sally Beauty", "Dollar Shave Club", "Peloton",
-        "ClassPass", "Lush", "Aveda", "Drybar", "Regis Salons", "Fantastic Sams",
+        "ClassPass", "Lush", "Aveda", "Drybar", "Regis Salons", "Fantastic Sams", "F45 Training", "Whoop",
     ],
     "Education": [
         "UF Bookstore", "UF Print", "University of Florida", "ChatGPT Plus", "OpenAI",
         "Perplexity", "Claude Pro", "Chegg", "Quizlet", "Coursera", "Udemy",
         "Grammarly", "Duolingo", "Pearson", "McGraw Hill", "Cengage", "Course Hero",
         "Barnes & Noble College", "Follett", "College Board", "ETS", "Kaplan",
-        "Princeton Review", "LSAC", "AAMC",
+        "Princeton Review", "LSAC", "AAMC", "Top Hat", "iClicker", "VitalSource",
     ],
     "Nightlife": [
         "The Locker Room", "MacDinton's", "Rush", "Grove", "Total Wine & More",
-        "ABC Fine Wine & Spirits",
+        "ABC Fine Wine & Spirits", "The Swamp Restaurant", "Loosey's", "The Atlantic", "Publix Liquors",
     ],
     "Other": [
         "Geico", "State Farm", "Progressive", "Allstate", "Verizon", "T-Mobile", "AT&T",
@@ -115,7 +119,7 @@ BRANDS = {
         "GoFundMe", "Red Cross", "Monthly Maintenance Fee", "Overdraft Fee",
         "Foreign Transaction Fee", "Interest Charge", "Late Fee", "Florida DHSMV",
         "Notary", "Dry Cleaning", "Laundromat", "NordVPN", "LinkedIn Premium", "Zoom",
-        "Canva",
+        "Canva", "Cash App", "Zelle", "PayPal", "ATM Withdrawal",
     ],
 }
 
@@ -161,6 +165,27 @@ EXTRA = {
     "Venmo": ["VENMO"],
     "Tropical Smoothie Cafe": ["TROPICAL SMOOTHIE CAFE", "TROPICAL SMOOTHIE"],
     "Dunkin": ["DUNKIN", "DUNKIN DONUTS"],
+    "Whataburger": ["WHATABURGER", "WHATABURGER #123"],
+    "Mellow Mushroom": ["MELLOW MUSHROOM", "MELLOW MUSHROOM GAINESVILLE"],
+    "Dutch Bros": ["DUTCH BROS", "DUTCH BROS COFFEE"],
+    "Crumbl Cookies": ["CRUMBL", "CRUMBL COOKIES"],
+    "7-Eleven": ["7-ELEVEN", "7 ELEVEN", "7-ELEVEN 12345"],
+    "Buc-ee's": ["BUC-EE'S", "BUCEES", "BUC EES"],
+    "ParkMobile": ["PARKMOBILE", "PARKMOBILE LLC"],
+    "Aerie": ["AERIE", "AMERICAN EAGLE AERIE"],
+    "Abercrombie & Fitch": ["ABERCROMBIE", "ABERCROMBIE & FITCH"],
+    "ESPN Plus": ["ESPN+", "ESPN PLUS", "DISNEY*ESPN+"],
+    "Tinder": ["TINDER", "TINDER*PLUS"],
+    "Bumble": ["BUMBLE", "BUMBLE TRADING"],
+    "Hinge": ["HINGE", "HINGE PREMIUM"],
+    "Florida Blue": ["FLORIDA BLUE", "FLORIDA BLUE PREMIUM"],
+    "HelloFresh": ["HELLOFRESH", "HELLO FRESH"],
+    "Top Hat": ["TOP HAT", "TOPHAT MONOCLE"],
+    "iClicker": ["ICLICKER", "MACMILLAN ICLICKER"],
+    "Cash App": ["CASH APP*", "SQ *CASH APP"],
+    "Zelle": ["ZELLE PAYMENT TO", "ZELLE PAYMENT FROM"],
+    "PayPal": ["PAYPAL *", "PAYPAL INST XFER"],
+    "ATM Withdrawal": ["ATM WITHDRAWAL", "ATM WDL", "NON-CHASE ATM WITHDRAW"],
 }
 
 # Online services: no store numbers or city names on the statement.
@@ -185,11 +210,13 @@ ONLINE = {
     "UnitedHealthcare", "OpenAI", "Pearson", "McGraw Hill", "Cengage", "SunPass",
     "College Board", "ETS", "Kaplan", "Princeton Review", "LSAC", "AAMC",
     "Gainesville Regional Utilities", "Duke Energy", "FPL", "GoFundMe", "Red Cross",
-    "Florida DHSMV", "University of Florida", "UF Print",
+    "Florida DHSMV", "University of Florida", "UF Print", "Shipt", "HelloFresh", "ESPN Plus", "Tinder", "Bumble", "Hinge", "BetterHelp",
+    "Whoop", "Top Hat", "iClicker", "VitalSource", "Cash App", "Zelle", "PayPal",
+    "Clay Electric", "ParkMobile", "Florida Blue",
 }
 
 # Small local places often show up with a payment-processor prefix.
-LOCAL = {"The Locker Room", "MacDinton's", "Rush", "Grove"}
+LOCAL = {"The Locker Room", "MacDinton's", "Rush", "Grove", "Burrito Brothers", "Loosey's", "The Atlantic", "The Swamp Restaurant",}
 PROCESSOR_OK = {"Dining", "Nightlife", "Personal Care", "Shopping", "Entertainment"}
 
 # ---------------------------------------------------------------------------
