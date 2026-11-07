@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from pathlib import Path
+from anomaly import flag_unusual
+from data_cleaning import clean_transactions
 
 # Dashboard sidebar
 with st.sidebar:
@@ -37,14 +39,63 @@ st.write(
 
 st.success("SmartSpend dashboard is running successfully!")
 
-# Load sample transaction data
-DATA_PATH = Path(__file__).resolve().parent / "data" / "sample_transactions.csv"
+# Load transactions
+DATA_PATH = (
+    Path(__file__).resolve().parent.parent
+    / "data"
+    / "sample_transactions.csv"
+)
 
 @st.cache_data
 def load_data():
     return pd.read_csv(DATA_PATH)
 
-df = load_data()
+st.divider()
+st.header("Upload Transactions")
+
+uploaded_file = st.file_uploader(
+    "Upload a bank transaction CSV",
+    type=["csv"]
+)
+
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+    st.success("CSV uploaded successfully!")
+else:
+    df = load_data()
+    st.info("Showing sample transactions. Upload a CSV to use your own data.")
+
+# Standardize Kaggle column names
+if "amt" in df.columns and "amount" not in df.columns:
+    df = df.rename(columns={"amt": "amount"})
+
+if "team_category" in df.columns:
+    df["category"] = df["team_category"]
+
+# Clean uploaded transaction descriptions
+if "description" in df.columns:
+    df = clean_transactions(df)
+
+# Check the columns required for the next pipeline steps
+if "amount" not in df.columns:
+    st.error("The CSV must contain an amount column.")
+    st.stop()
+
+df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
+df = df.dropna(subset=["amount"]).copy()
+
+st.caption(f"Loaded {len(df):,} valid transactions.")
+
+# Handle uploaded files without categories
+if "category" not in df.columns:
+    st.warning(
+        "This bank CSV has not been categorized yet. "
+        "Waiting for the categorization model to be connected."
+    )
+    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.stop()
+
 
 st.divider()
 
@@ -54,7 +105,7 @@ st.write("Explore and filter SmartSpend transactions.")
 
 # Category selection
 categories = ["All Categories"] + sorted(
-    df["team_category"].dropna().unique().tolist()
+    df["category"].dropna().unique().tolist()
 )
 
 selected_category = st.selectbox(
@@ -67,7 +118,7 @@ if selected_category == "All Categories":
     filtered_df = df.copy()
 else:
     filtered_df = df[
-        df["team_category"] == selected_category
+        df["category"] == selected_category
     ].copy()
 
 # Display filtered transactions
@@ -85,9 +136,9 @@ st.caption(
 st.divider()
 st.header("Spending Overview")
 
-total_spending = df["amt"].sum()
-average_transaction = df["amt"].mean()
-largest_transaction = df["amt"].max()
+total_spending = df["amount"].sum()
+average_transaction = df["amount"].mean()
+largest_transaction = df["amount"].max()
 
 col1, col2, col3 = st.columns(3)
 
@@ -105,7 +156,7 @@ st.divider()
 st.header("Spending by Category")
 
 category_spending = (
-    df.groupby("team_category")["amt"]
+    df.groupby("category")["amount"]
     .sum()
     .sort_values(ascending=False)
 )
@@ -126,7 +177,7 @@ st.dataframe(
 st.divider()
 st.header("Transactions by Category")
 
-category_counts = df["team_category"].value_counts()
+category_counts = df["category"].value_counts()
 
 st.bar_chart(category_counts)
 
@@ -140,45 +191,20 @@ st.divider()
 st.header("🚨 Unusual Transaction Detection")
 
 st.write(
-    "SmartSpend uses Isolation Forest to identify transactions "
-    "with unusual amounts or spending patterns."
+    "SmartSpend uses Isolation Forest to identify "
+    "transactions with unusual spending patterns."
 )
 
-from sklearn.ensemble import IsolationForest
+# Prepare transactions for anomaly detection
+anomaly_df = df.copy()
 
-# Prepare transaction data
-anomaly_data = df[["amt", "team_category"]].copy()
 
-# Convert categories into numbers
-anomaly_features = pd.get_dummies(
-    anomaly_data,
-    columns=["team_category"]
-)
-
-# Train Isolation Forest
-anomaly_model = IsolationForest(
-    n_estimators=100,
-    contamination=0.05,
-    random_state=42
-)
-
-anomaly_model.fit(anomaly_features)
-
-# Predict anomalies
-anomaly_predictions = anomaly_model.predict(anomaly_features)
-
-# Add flags to transaction data
-results_df = df.copy()
-
-results_df["Status"] = [
-    "⚠️ Needs Review" if prediction == -1 else "✅ Normal"
-    for prediction in anomaly_predictions
-]
+# Use the reusable function from anomaly.py
+results_df = flag_unusual(anomaly_df)
 
 # Count unusual transactions
-unusual_count = (results_df["Status"] == "⚠️ Needs Review").sum()
+unusual_count = int(results_df["unusual"].sum())
 
-# Display summary
 col1, col2 = st.columns(2)
 
 with col1:
@@ -190,9 +216,7 @@ with col2:
 # Display flagged transactions
 st.subheader("Flagged Transactions")
 
-flagged_df = results_df[
-    results_df["Status"] == "⚠️ Needs Review"
-]
+flagged_df = results_df[results_df["unusual"]]
 
 st.dataframe(
     flagged_df,
@@ -203,5 +227,3 @@ st.dataframe(
 st.caption(
     "Flagged transactions are unusual, not necessarily fraudulent."
 )
-
-
