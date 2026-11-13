@@ -23,7 +23,11 @@ def predict_categories(df):
 
     model, vectorizer = load_categorizer()
 
-    # Convert transaction descriptions into model inputs
+    # Preserve existing category labels for comparison
+    if "category" in df.columns:
+        df["actual_category"] = df["category"]
+
+    # Convert descriptions into model inputs
     descriptions = df["description"].fillna("").astype(str)
     X = vectorizer.transform(descriptions)
 
@@ -32,10 +36,11 @@ def predict_categories(df):
     probabilities = model.predict_proba(X)
     df["confidence"] = probabilities.max(axis=1)
 
-    # Flag low-confidence predictions
+    # Flag predictions below 40% confidence
     df["needs_review"] = df["confidence"] < 0.4
 
     return df
+
 
 
 # Dashboard sidebar
@@ -120,36 +125,41 @@ if "amt" in df.columns and "amount" not in df.columns:
 if "team_category" in df.columns:
     df["category"] = df["team_category"]
 
-# Check for required amount column
-if "amount" not in df.columns:
-    st.error("Missing required column: amount")
-    st.stop()
 
-# Convert amounts into numbers
-df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
-
-# Remove invalid amounts
-invalid_count = int(df["amount"].isna().sum())
-df = df.dropna(subset=["amount"]).copy()
-
-if invalid_count > 0:
-    st.warning(f"Removed {invalid_count} transactions with invalid amounts.")
-
-if df.empty:
-    st.error("No valid transactions remain after cleaning.")
-    st.stop()
-
-# Clean descriptions when available
+# Clean uploaded bank transactions
 if "description" in df.columns:
-    df["description"] = df["description"].astype("string")
-    df = clean_transactions(df.copy())
+    df = clean_transactions(
+        df.copy(),
+        create_sample=False
+    )
 
     if df.empty:
-        st.error("No valid transactions remain after cleaning descriptions.")
+        st.error("No valid transactions remain after cleaning.")
         st.stop()
 
-    # Categorize using the saved model
+    if "amount" not in df.columns:
+        st.error("Missing required column: amount")
+        st.stop()
+
+    # Predict categories using the saved model
     df = predict_categories(df)
+
+else:
+    # Handle the existing Kaggle sample dataset
+    if "amount" not in df.columns:
+        st.error("Missing required column: amount")
+        st.stop()
+
+    df["amount"] = pd.to_numeric(
+        df["amount"], errors="coerce"
+    )
+
+    df = df.dropna(subset=["amount"]).copy()
+
+    if df.empty:
+        st.error("No valid transactions remain.")
+        st.stop()
+
 
 # Show successful transaction count
 st.caption(f"Loaded {len(df):,} valid transactions.")
@@ -302,6 +312,49 @@ st.write(
     "These transactions have low-confidence category predictions "
     "and may need to be checked manually."
 )
+
+# Compare predictions with existing labels
+if "actual_category" in df.columns:
+    st.divider()
+    st.header("📊 Categorization Accuracy Check")
+
+    comparison_df = df.copy()
+
+    comparison_df["correct"] = (
+        comparison_df["category"]
+        == comparison_df["actual_category"]
+    )
+
+    accuracy = comparison_df["correct"].mean()
+
+    st.metric(
+        "Accuracy on Uploaded Labeled CSV",
+        f"{accuracy:.1%}"
+    )
+
+    st.subheader("Prediction Comparison")
+
+    st.dataframe(
+        comparison_df[
+            [
+                "description",
+                "actual_category",
+                "category",
+                "confidence",
+                "needs_review",
+                "correct"
+            ]
+        ],
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.caption(
+        "This comparison uses the category labels provided "
+        "in the uploaded CSV. It is separate from the "
+        "unseen-brand evaluation."
+    )
+
 
 # Check whether the categorizer provided review flags
 if "needs_review" in df.columns:
