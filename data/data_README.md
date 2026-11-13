@@ -9,4 +9,7 @@ Training data for the spending categorizer. Columns: description (bank statement
 ## label_mapping.csv
 Maps Kaggle category labels to team categories.
 
+## sample_student_transactions.csv
+Sample student bank transaction dataset containing 30 transactions within the last month for a college student at the University of Florida (UF). Contains no sensitive banking information. Descriptions match real merchants from `real_merchants.csv` (e.g., Publix, The Standard, GRU, Gator Dining, UF Bookstore, The Swamp Restaurant). Generated and cleaned by `src/data_cleaning.py`.
+
 The full Kaggle file (fraudTrain.csv) is not stored in the repo. Download it from Kaggle.
