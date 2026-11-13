@@ -148,17 +148,19 @@ if "description" in df.columns:
         st.error("No valid transactions remain after cleaning descriptions.")
         st.stop()
 
+    # Categorize using the saved model
+    df = predict_categories(df)
+
 # Show successful transaction count
 st.caption(f"Loaded {len(df):,} valid transactions.")
 
 
-# Handle uploaded files without categories
+# Check that categories are available
 if "category" not in df.columns:
-    st.warning(
-        "This bank CSV has not been categorized yet. "
-        "Waiting for the categorization model to be connected."
+    st.error(
+        "No spending categories are available. "
+        "Please upload a CSV containing transaction descriptions."
     )
-    st.dataframe(df, use_container_width=True, hide_index=True)
     st.stop()
 
 
