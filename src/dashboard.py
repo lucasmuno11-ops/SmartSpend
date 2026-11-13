@@ -3,6 +3,40 @@ import pandas as pd
 from pathlib import Path
 from anomaly import flag_unusual
 from data_cleaning import clean_transactions
+import joblib
+
+# Load the saved categorization model
+ROOT = Path(__file__).resolve().parent.parent
+MODEL_PATH = ROOT / "models" / "categorizer_model.joblib"
+VECTORIZER_PATH = ROOT / "models" / "categorizer_vectorizer.joblib"
+
+
+@st.cache_resource
+def load_categorizer():
+    model = joblib.load(MODEL_PATH)
+    vectorizer = joblib.load(VECTORIZER_PATH)
+    return model, vectorizer
+
+# Predict spending categories using the saved model
+def predict_categories(df):
+    df = df.copy()
+
+    model, vectorizer = load_categorizer()
+
+    # Convert transaction descriptions into model inputs
+    descriptions = df["description"].fillna("").astype(str)
+    X = vectorizer.transform(descriptions)
+
+    # Predict categories and confidence scores
+    df["category"] = model.predict(X)
+    probabilities = model.predict_proba(X)
+    df["confidence"] = probabilities.max(axis=1)
+
+    # Flag low-confidence predictions
+    df["needs_review"] = df["confidence"] < 0.4
+
+    return df
+
 
 # Dashboard sidebar
 with st.sidebar:
@@ -58,34 +92,65 @@ uploaded_file = st.file_uploader(
     type=["csv"]
 )
 
-
+# Load uploaded CSV or sample data
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
+    try:
+        df = pd.read_csv(uploaded_file)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError,
+            UnicodeDecodeError) as e:
+        st.error(f"Unable to read CSV file: {e}")
+        st.stop()
+
     st.success("CSV uploaded successfully!")
 else:
     df = load_data()
     st.info("Showing sample transactions. Upload a CSV to use your own data.")
 
-# Standardize Kaggle column names
+# Check for an empty dataset
+if df.empty:
+    st.error("The CSV contains no transactions.")
+    st.stop()
+
+# Standardize column names
+df.columns = df.columns.str.strip().str.lower()
+
 if "amt" in df.columns and "amount" not in df.columns:
     df = df.rename(columns={"amt": "amount"})
 
 if "team_category" in df.columns:
     df["category"] = df["team_category"]
 
-# Clean uploaded transaction descriptions
-if "description" in df.columns:
-    df = clean_transactions(df)
-
-# Check the columns required for the next pipeline steps
+# Check for required amount column
 if "amount" not in df.columns:
-    st.error("The CSV must contain an amount column.")
+    st.error("Missing required column: amount")
     st.stop()
 
+# Convert amounts into numbers
 df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
+
+# Remove invalid amounts
+invalid_count = int(df["amount"].isna().sum())
 df = df.dropna(subset=["amount"]).copy()
 
+if invalid_count > 0:
+    st.warning(f"Removed {invalid_count} transactions with invalid amounts.")
+
+if df.empty:
+    st.error("No valid transactions remain after cleaning.")
+    st.stop()
+
+# Clean descriptions when available
+if "description" in df.columns:
+    df["description"] = df["description"].astype("string")
+    df = clean_transactions(df.copy())
+
+    if df.empty:
+        st.error("No valid transactions remain after cleaning descriptions.")
+        st.stop()
+
+# Show successful transaction count
 st.caption(f"Loaded {len(df):,} valid transactions.")
+
 
 # Handle uploaded files without categories
 if "category" not in df.columns:
@@ -227,3 +292,35 @@ st.dataframe(
 st.caption(
     "Flagged transactions are unusual, not necessarily fraudulent."
 )
+# Transactions Needing Review
+st.divider()
+st.header("🔎 Transactions Needing Review")
+
+st.write(
+    "These transactions have low-confidence category predictions "
+    "and may need to be checked manually."
+)
+
+# Check whether the categorizer provided review flags
+if "needs_review" in df.columns:
+
+    # Keep only transactions marked for review
+    review_df = df[df["needs_review"].fillna(False).astype(bool)]
+
+    # Show number of transactions requiring review
+    st.metric("Transactions Needing Review", len(review_df))
+
+    if review_df.empty:
+        st.success("No transactions currently need category review.")
+    else:
+        st.dataframe(
+            review_df,
+            use_container_width=True,
+            hide_index=True
+        )
+
+else:
+    st.info(
+        "Category review results will appear here once "
+        "the categorization model is connected."
+    )
