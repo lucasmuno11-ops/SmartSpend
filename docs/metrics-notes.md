@@ -10,24 +10,14 @@ Dataset: data/real_merchants.csv
 
 | Random State | Random Split | Unseen Brand Split |
 |---|---|---|
-| 42 | 98.99% | 55.98% |
-| 7 | 98.29% | 54.23% |
-| 99 | 98.99% | 57.48% |
-| Average | 98.76% | 55.90% |
+| 42 | 98.40% | 60.02% |
+| 7 | 97.82% | 52.18% |
+| 99 | 98.11% | 56.44% |
+| Average | 98.11% | 56.21% |
 
 ### Analysis
 
-The categorization model performed significantly better
-on random transaction splits than unseen-brand splits.
-
-Random splitting achieved an average accuracy of 98.76%,
-compared with 55.90% for unseen brands.
-
-This 42.86 percentage-point difference suggests the model
-relies heavily on recognizing familiar merchants.
-
-Unseen-brand testing provides a more realistic measure
-of how the model handles unfamiliar merchants.
+The updated dataset contains 6,883 transactions across 883 merchant brands. Random-split accuracy averaged 98.11%, while unseen-brand accuracy averaged 56.21%. Compared with the previous unseen-brand average of 55.90%, accuracy improved slightly by 0.31 percentage points. However, performance varied between random states, showing that the model still struggles with unfamiliar merchants.
 
 ## 2. Confusion Matrix
 
@@ -38,20 +28,7 @@ split with random state 42.
 
 ### Main Findings
 
-The largest classification errors included:
-
-- Entertainment predicted as Dining: 48 transactions
-- Entertainment predicted as Other: 38 transactions
-- Transportation predicted as Dining: 30 transactions
-- Education predicted as Other: 20 transactions
-- Other predicted as Dining: 19 transactions
-- Transportation predicted as Shopping: 18 transactions
-
-Entertainment was particularly difficult to classify,
-with only 41 of 179 transactions correctly predicted.
-
-Other weak categories included Housing, Other,
-and Transportation.
+The updated unseen-brand confusion matrix shows that the strongest categories are Nightlife, Dining, Shopping, Personal Care, Healthcare, and Groceries, which all have relatively high correct counts on the diagonal. Nightlife is especially strong, with 133 correct predictions and very few mix-ups. The model still struggles most with categories that overlap in wording or merchant type. The biggest error is Shopping being predicted as Dining (65 rows). Other common mix-ups include Transportation → Dining (33), Entertainment → Dining (26), Other → Dining (20), Housing → Dining (18), and Healthcare → Other (15). The matrix also shows that Transfers had no test rows in this split, so it could not really be evaluated here. Overall, the model is best on clear merchant types, but it still tends to over-predict Dining and sometimes Other when a merchant is unfamiliar.
 
 ### Analysis
 

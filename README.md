@@ -11,7 +11,7 @@ Students export their transaction history as a CSV (from a bank, Venmo, etc.), u
 - **Python** — pandas (data handling), scikit-learn (ML)
 - **Text Classification** — TF-IDF + Naive Bayes / Logistic Regression, to categorize transactions
 - **Anomaly Detection** — Isolation Forest, to flag unusual transactions
-- **Dashboard (stretch goal)** — Streamlit
+- **Dashboard** — Streamlit
 
 ## Project structure
 ```
@@ -31,6 +31,17 @@ smartspend/
    - Mac/Linux: `source venv/bin/activate`
    - Windows: `venv\Scripts\activate`
 4. Install dependencies: `pip install -r requirements.txt`
+
+### Run the SmartSpend Dashboard
+
+After installing the requirements, run:
+
+```bash
+python -m streamlit run src/dashboard.py
+```
+
+The dashboard will open at http://localhost:8501.
+
 
 ## Team
 - **Project Lead:** Lucas
