@@ -4,17 +4,19 @@ Load and clean student bank transaction data from a CSV export.
 Handles data cleaning for student bank transactions:
 - Standardizes column names (date, description, amount, category)
 - Cleans and formats transaction descriptions to uppercase and removes extra whitespace
-- Cleans and parses transaction amounts to positive floats (spending)
+- Robustly cleans and parses currency amounts (handles $, commas, accounting parentheses,
+  currency codes, debit/credit notations) and standardizes to positive float spending amounts
 - Standardizes dates to YYYY-MM-DD format
 - Drops rows with missing required values (description, amount)
 - Filters out sensitive banking columns (account numbers, SSN, card numbers, balances)
 - Removes duplicates and sorts transactions chronologically
-- Creates and exports realistic sample student bank transactions matching merchants
-  from real_merchants.csv for University of Florida (UF) students without sensitive data.
+- Creates and updates sample bank transactions in data/sample_student_transactions.csv
+  matching merchants from real_merchants.csv for UF students.
 """
 
 from datetime import date, timedelta
 from pathlib import Path
+import re
 from typing import Optional, Union
 
 import pandas as pd
@@ -24,7 +26,6 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT_DIR / "data"
 REAL_MERCHANTS_PATH = DATA_DIR / "real_merchants.csv"
 DEFAULT_SAMPLE_PATH = DATA_DIR / "sample_student_transactions.csv"
-ALT_SAMPLE_PATH = DATA_DIR / "sample_bank_transactions.csv"
 
 # 30 realistic transactions for a UF college student in Gainesville, FL.
 # Every description is an exact match for a merchant entry in data/real_merchants.csv.
@@ -67,12 +68,42 @@ def load_transactions(csv_path: Union[str, Path]) -> pd.DataFrame:
     return pd.read_csv(csv_path)
 
 
+def clean_currency(series: pd.Series) -> pd.Series:
+    """
+    Robustly clean and parse currency representations into positive float values.
+
+    Handles:
+    - Numeric types directly (float, int).
+    - Currency symbols: $, €, £.
+    - Currency codes: USD, EUR, etc.
+    - Thousand separators (commas) and whitespace.
+    - Accounting negatives: ($12.34), $(12.34), -$12.34, $-12.34, 12.34-.
+    - Credit / debit flags: CR, DR.
+    - Standardizes expenses to positive floats rounded to 2 decimal places.
+    """
+    if pd.api.types.is_numeric_dtype(series):
+        return pd.to_numeric(series, errors="coerce").abs().round(2)
+
+    # String parsing
+    s = series.astype(str).str.strip()
+
+    # Strip currency symbols, currency codes, commas, parens, letters, leaving only digits, dots, minus
+    cleaned = (
+        s.str.replace(r"[^\d.-]", "", regex=True)
+        # Handle cases where trailing minus exist
+        .str.replace(r"-+$", "", regex=True)
+    )
+
+    numeric = pd.to_numeric(cleaned, errors="coerce")
+    return numeric.abs().round(2)
+
+
 def create_sample_bank_transactions(
     output_path: Optional[Union[str, Path]] = None,
     reference_date: Optional[Union[date, str]] = None,
 ) -> pd.DataFrame:
     """
-    Create a sample bank transactions CSV with 30 realistic transactions in the last month
+    Create sample bank transactions CSV with 30 realistic transactions in the last month
     for a UF college student, matching merchants from real_merchants.csv without sensitive data.
 
     Parameters:
@@ -100,45 +131,38 @@ def create_sample_bank_transactions(
             {
                 "date": txn_date.strftime("%Y-%m-%d"),
                 "description": item["description"],
-                "amount": item["amount"],
+                "amount": float(item["amount"]),
                 "category": item["category"],
             }
         )
 
     df_sample = pd.DataFrame(records)
-    df_sample.to_csv(target_path, index=False)
-
-    # Also keep ALT_SAMPLE_PATH synchronized if different
-    if target_path.resolve() != ALT_SAMPLE_PATH.resolve():
-        try:
-            df_sample.to_csv(ALT_SAMPLE_PATH, index=False)
-        except Exception:
-            pass
+    # Save with float_format="%.2f" so currency amounts have proper two decimal places in CSV
+    df_sample.to_csv(target_path, index=False, float_format="%.2f")
 
     return df_sample
 
 
 def clean_transactions(
     data: Union[pd.DataFrame, str, Path, None] = None,
-    create_sample: bool = True,
+    create_sample: bool = False,
     sample_output_path: Optional[Union[str, Path]] = None,
 ) -> pd.DataFrame:
     """
     Clean bank transaction data from an inputted CSV path or DataFrame of student data.
-    Also creates/ensures a sample bank transactions CSV with realistic UF student transactions.
 
     Cleaning pipeline:
     1. Standardizes column names (date, description, amount, category).
-    2. Strips sensitive columns (account numbers, routing numbers, SSN, card numbers, balances).
+    2. Strips sensitive banking columns (account numbers, routing numbers, SSN, card numbers, balances).
     3. Normalizes descriptions: drops missing values, trims extra whitespace, converts to uppercase.
-    4. Normalizes amounts: cleans currency symbols, handles negative debits/parentheses, converts to positive float.
+    4. Normalizes currency amounts: strips symbols/codes, handles debits/parentheses, converts to positive float.
     5. Normalizes dates: parses and standardizes to YYYY-MM-DD format.
     6. Normalizes category (if present).
     7. Deduplicates rows and sorts chronologically.
 
     Parameters:
     - data: A DataFrame, path to a CSV file, or None (defaults to sample transactions).
-    - create_sample: If True, ensures the sample bank transactions CSV is created.
+    - create_sample: If True, regenerates the sample bank transactions CSV.
     - sample_output_path: Custom output path for sample transactions CSV.
 
     Returns:
@@ -146,10 +170,9 @@ def clean_transactions(
     """
     sample_path = Path(sample_output_path) if sample_output_path else DEFAULT_SAMPLE_PATH
 
-    # Create or update sample CSV if requested or if sample file does not exist
-    if create_sample or data is None:
-        if not sample_path.exists() or create_sample:
-            create_sample_bank_transactions(sample_path)
+    # Create sample CSV if explicitly requested or if default sample doesn't exist when data is None
+    if create_sample or (data is None and not sample_path.exists()):
+        create_sample_bank_transactions(sample_path)
 
     # Load data from CSV if a path was passed or if data is None
     if data is None:
@@ -161,52 +184,50 @@ def clean_transactions(
     else:
         raise ValueError(f"Unsupported data type for clean_transactions: {type(data)}")
 
-    # 1. Normalize column names (lowercase, stripped)
+    # 1. Normalize column names (lowercase, stripped, removing punctuation for matching)
     column_mapping = {}
     for col in df.columns:
         norm_col = str(col).strip().lower()
+        norm_clean = re.sub(r"[^a-z0-9]", "", norm_col)
+
         if norm_col in {
             "date", "transaction_date", "trans_date", "posting_date",
             "posted_date", "time", "transaction date", "trans date", "post date"
-        }:
+        } or norm_clean in {"date", "transactiondate", "transdate", "postingdate", "posteddate", "postdate"}:
             column_mapping[col] = "date"
         elif norm_col in {
             "description", "desc", "merchant", "merchant_name", "merchant name",
             "payee", "name", "memo", "details", "narrative",
             "transaction_description", "transaction description"
-        }:
+        } or norm_clean in {"description", "desc", "merchant", "merchantname", "payee", "transactiondescription"}:
             column_mapping[col] = "description"
         elif norm_col in {
             "amount", "amt", "transaction_amount", "trans_amount",
-            "transaction amount", "trans amount", "price", "cost"
-        }:
+            "transaction amount", "trans amount", "price", "cost",
+            "amount ($)", "amount ($ usd)", "amount (usd)", "amount usd",
+            "debit", "debit ($)", "debit amount", "paid out", "charge"
+        } or norm_clean in {"amount", "amt", "transactionamount", "transamount", "amountusd", "debitamount"}:
             column_mapping[col] = "amount"
         elif norm_col in {
             "category", "team_category", "team category",
             "spending_category", "spending category", "label", "type"
-        }:
+        } or norm_clean in {"category", "teamcategory", "spendingcategory"}:
             column_mapping[col] = "category"
 
     df = df.rename(columns=column_mapping)
 
-    # Handle separate debit / credit columns if amount was not directly provided
+    # Handle separate debit / credit columns if amount was not directly matched
     if "amount" not in df.columns:
         lower_cols = {str(c).strip().lower(): c for c in df.columns}
         if "debit" in lower_cols:
-            debit_series = pd.to_numeric(
-                df[lower_cols["debit"]].astype(str).str.replace(r"[^\d.-]", "", regex=True),
-                errors="coerce"
-            ).fillna(0)
+            debit_series = clean_currency(df[lower_cols["debit"]]).fillna(0)
             if "credit" in lower_cols:
-                credit_series = pd.to_numeric(
-                    df[lower_cols["credit"]].astype(str).str.replace(r"[^\d.-]", "", regex=True),
-                    errors="coerce"
-                ).fillna(0)
+                credit_series = clean_currency(df[lower_cols["credit"]]).fillna(0)
                 df["amount"] = debit_series - credit_series
             else:
                 df["amount"] = debit_series
 
-    # 2. Drop sensitive personal / account data columns if present in student bank CSV exports
+    # 2. Drop sensitive personal / account data columns if present in bank exports
     sensitive_keywords = {
         "account", "acct", "routing", "ssn", "card", "pan", "cvv", "cvc", "pin",
         "balance", "first_name", "last_name", "customer_name", "phone", "email",
@@ -232,23 +253,11 @@ def clean_transactions(
         )
         df = df[df["description"] != ""]
 
-    # 4. Clean amount
+    # 4. Clean currency amount
     if "amount" in df.columns:
-        if df["amount"].dtype == object:
-            cleaned_amt = (
-                df["amount"]
-                .astype(str)
-                .str.strip()
-                .str.replace(r"^\((.*)\)$", r"-\1", regex=True)
-                .str.replace(r"[\$,]", "", regex=True)
-            )
-            df["amount"] = pd.to_numeric(cleaned_amt, errors="coerce")
-        else:
-            df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
-
+        df["amount"] = clean_currency(df["amount"])
         df = df.dropna(subset=["amount"])
-        # Standardize spending to positive numbers, rounded to 2 decimal places
-        df["amount"] = df["amount"].abs().round(2)
+        # Remove 0-amount rows
         df = df[df["amount"] > 0]
 
     # 5. Clean date
@@ -279,7 +288,7 @@ def clean_transactions(
 
 
 if __name__ == "__main__":
-    # Create sample student transactions CSV and run cleaning
+    # Create sample student transactions in data/sample_student_transactions.csv and run cleaning
     sample_file = DEFAULT_SAMPLE_PATH
     create_sample_bank_transactions(sample_file)
     print(f"Created sample bank transactions CSV at: {sample_file}")
