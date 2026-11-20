@@ -1,7 +1,7 @@
 """
 Text classification: predict a spending category from a transaction description.
 
-Pipeline: TF-IDF (text -> numbers) -> Naive Bayes (numbers -> predicted category)
+Pipeline: Character TF-IDF (text -> numbers) -> Logistic Regression
 """
 
 from pathlib import Path
@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score, classification_report
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 
 
@@ -48,18 +48,18 @@ def split_by_brand(df, test_size=0.2, random_state=42):
 
 def train_categorizer(train_descriptions, train_categories, test_descriptions, test_categories):
     """
-    Train a TF-IDF + Naive Bayes categorizer.
+    Train a character TF-IDF + Logistic Regression categorizer.
 
     train_descriptions : list[str]
     train_categories   : list[str]
     test_descriptions  : list[str]
     test_categories    : list[str]
     """
-    vectorizer = TfidfVectorizer()
+    vectorizer = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 5))
     X_train_vec = vectorizer.fit_transform(train_descriptions)
     X_test_vec = vectorizer.transform(test_descriptions)
 
-    model = MultinomialNB(fit_prior=False)
+    model = LogisticRegression(max_iter=1000)
     model.fit(X_train_vec, train_categories)
 
     return model, vectorizer, X_test_vec, test_categories
@@ -108,8 +108,10 @@ if __name__ == "__main__":
     )
 
     predictions = model.predict(X_test_vec)
+    test_accuracy = accuracy_score(y_test, predictions)
     print(f"Train brands: {train_df['brand'].nunique()} | Test brands: {test_df['brand'].nunique()}")
     print(f"Train rows: {len(train_df)} | Test rows: {len(test_df)}")
+    print(f"Test set accuracy: {test_accuracy:.2%}")
     print("Vocabulary size:", len(vectorizer.vocabulary_))
     print("\nClassification report:")
     print(classification_report(y_test, predictions, zero_division=0))
@@ -122,8 +124,13 @@ if __name__ == "__main__":
             f"share_labeled={result['share_labeled']:.3f} | accuracy={result['accuracy']:.3f}"
         )
 
+    final_vectorizer = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 5))
+    X_full = final_vectorizer.fit_transform(df["description"].tolist())
+    final_model = LogisticRegression(max_iter=1000)
+    final_model.fit(X_full, df["category"].tolist())
+
     models_dir = Path(__file__).resolve().parent.parent / "models"
     models_dir.mkdir(exist_ok=True)
-    joblib.dump(model, models_dir / "categorizer_model.joblib")
-    joblib.dump(vectorizer, models_dir / "categorizer_vectorizer.joblib")
+    joblib.dump(final_model, models_dir / "categorizer_model.joblib")
+    joblib.dump(final_vectorizer, models_dir / "categorizer_vectorizer.joblib")
     print(f"\nSaved model artifacts to: {models_dir}")

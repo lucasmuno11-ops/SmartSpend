@@ -2,7 +2,7 @@
 
 ## 1. Categorization Model
 
-Model: TF-IDF + Multinomial Naive Bayes
+Model: Character TF-IDF (`char_wb`, ngram range 2-5) + Logistic Regression
 
 Dataset: data/real_merchants.csv
 
@@ -10,14 +10,14 @@ Dataset: data/real_merchants.csv
 
 | Random State | Random Split | Unseen Brand Split |
 |---|---|---|
-| 42 | 98.40% | 60.02% |
-| 7 | 97.82% | 52.18% |
-| 99 | 98.11% | 56.44% |
-| Average | 98.11% | 56.21% |
+| 42 | 98.98% | 57.36% |
+| 7 | 98.98% | 54.41% |
+| 99 | 98.81% | 57.26% |
+| Average | 98.92% | 56.34% |
 
 ### Analysis
 
-The updated dataset contains 6,883 transactions across 883 merchant brands. Random-split accuracy averaged 98.11%, while unseen-brand accuracy averaged 56.21%. Compared with the previous unseen-brand average of 55.90%, accuracy improved slightly by 0.31 percentage points. However, performance varied between random states, showing that the model still struggles with unfamiliar merchants.
+The updated dataset contains 9,276 transactions across 1,121 merchant brands. Random-split accuracy averaged 98.92%, while unseen-brand accuracy averaged 56.34%. The character-based model improved unseen-brand accuracy over word TF-IDF + Naive Bayes on all three tested seeds.
 
 ## 2. Confusion Matrix
 
