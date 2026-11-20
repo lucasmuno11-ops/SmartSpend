@@ -123,6 +123,110 @@ BRANDS = {
     ],
 }
 
+# new: extra brands added by Lucas. Names already in BRANDS are skipped automatically.
+MORE_BRANDS = {
+    "Groceries": [
+        "Kroger", "Food Lion", "Safeway", "Albertsons", "Wegmans", "Meijer", "Earth Fare",
+        "Sprouts Farmers Market", "H Mart", "Weee!", "Dollar General", "Family Dollar",
+        "Sedano's", "Presidente Supermarket", "Bravo Supermarkets", "Milam's Market",
+        "Stop & Shop", "Giant Eagle", "Walmart Neighborhood Market", "Target Grocery",
+    ],
+    "Dining": [
+        "Maple Street Biscuit Company", "Smoothie King", "Tropical Smoothie Cafe", "Jersey Mike's",
+        "Firehouse Subs", "Jason's Deli", "Cook Out", "Culver's", "Whataburger", "Del Taco",
+        "Jack in the Box", "Bojangles", "Church's Chicken", "Checkers", "Marco's Pizza",
+        "Blaze Pizza", "MOD Pizza", "Cici's Pizza", "Hungry Howie's", "Einstein Bros Bagels",
+        "Dairy Queen", "Krispy Kreme", "Tim Hortons", "Peet's Coffee", "P.F. Chang's",
+        "Cheesecake Factory", "Olive Garden", "Red Lobster", "Applebee's", "Chili's",
+        "Buffalo Wild Wings", "Hooters", "Cracker Barrel", "IHOP", "Denny's", "Waffle House",
+        "First Watch", "Cheddar's", "Longhorn Steakhouse", "Outback Steakhouse", "Sweetgreen",
+        "Cava", "Dutch Bros", "Wingstop", "Blank Street Coffee", "Satchel's Pizza",
+        "Dragonfly Sushi", "Boca Fiesta", "Flaco's Cocina", "Chuy's", "Nothing Bundt Cakes",
+        "Insomnia Cookies", "Crumbl", "Shake Shack", "Salad and Go", "Bahama Buck's",
+        "Rita's Italian Ice", "Menchie's", "Yogurtland", "Jamba", "Auntie Anne's", "Cinnabon",
+    ],
+    "Transportation": [
+        "Bird", "Spin", "Lime", "Amtrak", "Greyhound", "FlixBus", "Megabus", "Brightline",
+        "Southwest Airlines", "Delta Air Lines", "American Airlines", "JetBlue", "Spirit Airlines",
+        "Frontier Airlines", "United Airlines", "Avis", "Hertz", "Enterprise Rent-A-Car", "Turo",
+        "Zipcar", "Exxon", "Chevron", "BP", "Sunoco", "RaceTrac", "QuikTrip", "Circle K",
+        "Speedway", "Marathon", "Valero", "Pilot Flying J", "Love's Travel Stop", "Jiffy Lube",
+        "AutoZone", "O'Reilly Auto Parts", "Advance Auto Parts", "Pep Boys", "Firestone",
+        "Discount Tire", "Midas", "Meineke", "Take 5 Oil Change", "Mister Car Wash", "SpotHero",
+        "Waymo", "RTS Gainesville", "Via Rideshare", "Wawa Gas", "Murphy USA", "Costco Gas",
+    ],
+    "Shopping": [
+        "Old Navy", "Gap", "American Eagle", "Aerie", "Abercrombie & Fitch", "Urban Outfitters",
+        "Forever 21", "Zara", "Foot Locker", "Finish Line", "Journeys", "Champs Sports", "Adidas",
+        "Under Armour", "Bath & Body Works", "Victoria's Secret", "PacSun", "Zumiez", "Hot Topic",
+        "Barnes & Noble", "Staples", "Home Depot", "Lowe's", "IKEA", "Bed Bath & Beyond",
+        "HomeGoods", "TJ Maxx", "Ross Dress for Less", "Burlington", "Kohl's", "Nordstrom Rack",
+        "Macy's", "JCPenney", "Dillard's", "Party City", "Claire's", "Kay Jewelers", "Zales",
+        "Micro Center", "Newegg", "Wayfair", "Overstock", "Poshmark", "Depop", "ThredUp",
+        "Mercari", "Lululemon", "Vuori", "Gymshark", "Uniqlo", "REI", "Michaels", "Hobby Lobby",
+        "Dick's Sporting Goods", "Etsy", "Carter's", "GameStop", "Ace Hardware", "Academy Sports",
+        "Five Below", "Ollie's Bargain Outlet", "Big Lots", "Goodwill", "Savers", "Plato's Closet",
+    ],
+    "Entertainment": [
+        "AMC Theatres", "Regal Cinemas", "Cinemark", "Dave & Buster's", "Topgolf", "Main Event",
+        "Bowlero", "Universal Studios", "Walt Disney World", "SeaWorld", "Busch Gardens",
+        "Legoland", "Blizzard", "Riot Games", "Electronic Arts", "Ubisoft", "Sling TV", "Fubo",
+        "Philo", "Max", "Tidal", "Deezer", "Bandcamp", "Kindle Unlimited", "Apple Arcade",
+        "Nintendo eShop", "Humble Bundle", "Twitch", "Steam", "Audible", "Escape Room",
+        "Kings Dining and Entertainment", "Andretti Indoor Karting", "Museum of Natural History",
+        "Florida Theatre", "Hippodrome Theatre", "Live Nation", "AXS Tickets", "Vivid Seats",
+    ],
+    "Healthcare": [
+        "Rite Aid", "Quest Diagnostics", "MinuteClinic", "Aspen Dental", "Warby Parker",
+        "LensCrafters", "Pearle Vision", "1-800 Contacts", "Ro", "UF Health", "Shands",
+        "HCA Florida", "AdventHealth", "Baptist Health", "Orlando Health", "Tampa General",
+        "CityMD", "Doctors Express", "Optum", "Express Scripts", "Kaiser Permanente",
+        "Planned Parenthood", "Walgreens", "CVS Pharmacy", "Urgent Care", "Dental Office",
+        "Student Health Care Center", "Eye Care Associates", "Vision Works",
+    ],
+    "Personal Care": [
+        "Supercuts", "Sport Clips", "Ulta Beauty", "Massage Envy", "Hand & Stone",
+        "European Wax Center", "Regis Salon", "Drybar", "Anytime Fitness", "LA Fitness",
+        "24 Hour Fitness", "Gold's Gym", "Crunch Fitness", "Orangetheory Fitness", "F45 Training",
+        "Pure Barre", "SoulCycle", "Planet Fitness", "YMCA", "UF Recreation and Wellness",
+        "Equinox", "Life Time Fitness", "Waxing the City", "Glossier", "Beauty Supply",
+        "Nail Salon", "Barber Shop", "Tanning Salon", "Spa",
+    ],
+    "Education": [
+        "Brainly", "Scribd", "Khan Academy", "Skillshare", "MasterClass", "LinkedIn Learning",
+        "Codecademy", "Udacity", "edX", "Pluralsight", "Rosetta Stone", "Babbel", "Turnitin",
+        "Respondus", "ProctorU", "Honorlock", "UF Registrar", "Santa Fe College", "Wiley",
+        "Macmillan Learning", "Kumon", "Chegg", "Coursera", "Duolingo", "Barnes & Noble College",
+        "Campus Bookstore", "Textbook Rental", "Student Tutoring", "Sylvan Learning",
+    ],
+    "Housing": [
+        "Cox Communications", "Frontier Communications", "Optimum", "Waste Management",
+        "Republic Services", "Greystar", "Camden Apartments", "Cortland", "Bell Partners",
+        "Lincoln Property Company", "Landmark Properties", "Campus Advantage", "Aaron's",
+        "Rent-A-Center", "Cort Furniture", "Zillow", "Renters Insurance", "Parking Permit",
+        "Apartment Application Fee", "Security Deposit", "Property Management",
+    ],
+    "Transfers": [
+        "Apple Cash", "Google Pay", "Western Union", "MoneyGram", "Coinbase", "Acorns", "Klarna",
+        "Affirm", "Afterpay", "Chime", "Remitly", "Sezzle",
+    ],
+    "Other": [
+        "USPS", "UPS Store", "FedEx", "DHL", "Public Storage", "U-Haul", "Extra Space Storage",
+        "CubeSmart", "Salvation Army", "ASPCA", "Humane Society", "UNICEF", "TurboTax",
+        "H&R Block", "Credit Karma", "Notarize", "Safelite", "Shutterfly", "Vistaprint",
+        "Snapfish", "Costco Membership", "Amazon Prime Membership", "Bank Service Charge",
+    ],
+}
+BRANDS["Other"] = [b for b in BRANDS["Other"] if b not in ("Cash App", "Zelle")]  # new: these are Transfers, not Other
+for _category, _names in MORE_BRANDS.items():  # new
+    BRANDS.setdefault(_category, [])  # new
+    _have = {n.lower() for n in BRANDS[_category]}  # new
+    for _name in _names:  # new
+        if _name.lower() not in _have:  # new
+            BRANDS[_category].append(_name)  # new
+            _have.add(_name.lower())  # new
+
+
 # Special spellings a real statement uses. Each extra is its own description.
 EXTRA = {
     "Publix": ["PUBLIX SUPER MARKETS", "PUBLIX SUPERMARKET"],
@@ -267,7 +371,7 @@ GENERIC_COUNT = {
 CITIES = ["GAINESVILLE FL", "ORLANDO FL", "TAMPA FL", "JACKSONVILLE FL", "MIAMI FL",
           "TALLAHASSEE FL", "FT LAUDERDALE FL", "PLANTATION FL", "OCALA FL"]
 
-STATEMENT_PREFIXES = ["POS PURCHASE ", "DEBIT CARD PURCHASE ", "PURCHASE ", "CHECKCARD "]
+STATEMENT_PREFIXES = ["POS PURCHASE ", "DEBIT CARD PURCHASE ", "PURCHASE ", "CHECKCARD ", "PURCHASE AUTHORIZED ON ", "RECURRING PAYMENT AUTHORIZED ON "]  # new
 PROCESSOR_PREFIXES = ["SQ *", "TST* ", "PAYPAL *"]
 
 
@@ -305,7 +409,7 @@ def make_variants(brand, how_many, online=False, local=False):
             else:
                 text = rng.choice(STATEMENT_PREFIXES) + base
         else:
-            style = rng.choice(["store", "store", "city", "both", "prefix", "prefix_city"])
+            style = rng.choice(["store", "store", "city", "both", "prefix", "prefix_city", "mobile"])  # new
             number = rng.randint(100, 9999)
             if local and rng.random() < 0.5:
                 style = "processor"
@@ -317,6 +421,8 @@ def make_variants(brand, how_many, online=False, local=False):
                 text = f"{base} #{number} {rng.choice(CITIES)}"
             elif style == "prefix":
                 text = rng.choice(STATEMENT_PREFIXES) + base
+            elif style == "mobile":  # new
+                text = f"{base} MOBILE PURCHASE"  # new
             elif style == "processor":
                 text = rng.choice(PROCESSOR_PREFIXES) + base
             else:
